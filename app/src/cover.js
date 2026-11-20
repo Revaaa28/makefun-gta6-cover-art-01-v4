@@ -120,7 +120,7 @@ function posterizeChannel(v, levels) {
 }
 
 function gradePosterInk(d, w, h) {
-  const levels = 4;
+  const levels = 6;
   const lum = new Float32Array(w * h);
   for (let i = 0, p = 0; i < d.length; i += 4, p++) {
     d[i] = posterizeChannel(d[i], levels);
@@ -148,11 +148,12 @@ function gradePosterInk(d, w, h) {
   }
   for (let p = 0; p < w * h; p++) {
     const strength = edge[p];
-    // Only real contours get inked: below 110 the posterized flats stay clean,
-    // above 240 the line is at full strength so edges read as printed ink.
-    if (strength > 110) {
+    // Only real contours get inked: below 140 the posterized flats stay clean,
+    // above 240 the line is at half strength so edges read as printed ink
+    // without swallowing faces.
+    if (strength > 140) {
       const i = p * 4;
-      const ink = strength > 240 ? 0.92 : 0.55;
+      const ink = strength > 240 ? 0.46 : 0.27;
       d[i] = d[i] * (1 - ink) + 18 * ink;
       d[i + 1] = d[i + 1] * (1 - ink) + 8 * ink;
       d[i + 2] = d[i + 2] * (1 - ink) + 26 * ink;
@@ -218,14 +219,15 @@ export function drawTitleBand(ctx, w, bandH, title, subtitle) {
   ctx.fillRect(0, 0, w, bandH);
 
   // Halftone dot field, denser toward the bottom of the band.
+  // Staggered rows, dots big and bright enough to read as print halftone.
   const step = Math.max(9, Math.round(bandH / 9));
   for (let row = 0; row * step < bandH; row++) {
-    for (let col = 0; col * step < w; col++) {
-      const fade = 0.25 + 0.75 * (row * step / bandH);
-      const r = step * 0.16 * fade;
-      ctx.fillStyle = 'rgba(255, 190, 235, 0.16)';
+    for (let col = 0; col * step < w + step; col++) {
+      const fade = 0.35 + 0.65 * (row * step / bandH);
+      const r = step * 0.3 * fade;
+      ctx.fillStyle = 'rgba(255, 190, 235, 0.3)';
       ctx.beginPath();
-      ctx.arc(col * step + step / 2, row * step + step / 2, r, 0, Math.PI * 2);
+      ctx.arc(col * step + step / 2 + (row % 2 ? step / 2 : 0), row * step + step / 2, r, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -269,7 +271,7 @@ export function drawBadge(ctx, cx, cy, r) {
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = '#0d0218';
   ctx.fill();
-  ctx.lineWidth = Math.max(2, r * 0.08);
+  ctx.lineWidth = Math.max(1.5, r * 0.05);
   ctx.strokeStyle = '#ffd23e';
   ctx.stroke();
   ctx.fillStyle = '#ffd23e';
@@ -407,8 +409,9 @@ export function renderCover(state, width, height) {
     }
   });
 
-  // Badge sits over the bottom-right of the photo area.
-  const badgeR = Math.max(26, width * 0.062);
+  // Badge sits over the bottom-right of the photo area: small (~60px radius
+  // on a 1280-wide cover) so it stays inside the corner panel.
+  const badgeR = Math.max(22, width * 0.047);
   drawBadge(ctx, width - badgeR - gutter * 2, height - badgeR - gutter * 2, badgeR);
 
   return canvas;
