@@ -4,89 +4,83 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NEON COAST — Vice Cover Studio</title>
-<link rel="stylesheet" href="./style.css">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="app">
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">NC</span>
+    <span class="brand-name">NEON COAST <em>Vice Cover Studio</em></span>
+  </div>
+  <p class="tagline">Turn your photos into GTA-style multi-panel cover art. Everything stays on your machine.</p>
+</header>
+
+<main id="editor-ui">
+  <section id="stage">
+    <div id="dropzone" title="Drop photos here">
+      <canvas id="preview" width="1080" height="1080"></canvas>
+      <p class="drop-hint">Drop photos here, or use Upload — click a panel to select it, drag inside a panel to reposition its photo.</p>
+    </div>
+  </section>
+
   <aside id="controls">
-    <header class="brand">
-      <h1>NEON <span>COAST</span></h1>
-      <p class="tagline">Vice Cover Studio — turn your photos into GTA-style cover art.</p>
-      <p class="privacy">Your photos never leave this device. Everything runs locally, offline.</p>
-    </header>
+    <section class="panel">
+      <h2>Caption</h2>
+      <label>Title
+        <input id="title-input" type="text" value="NEON COAST" maxlength="24">
+      </label>
+      <label>Subtitle
+        <input id="subtitle-input" type="text" value="Sunset Heist" maxlength="40">
+      </label>
+    </section>
 
-    <section>
-      <h2><em>1</em> Photos</h2>
-      <div id="thumbs" class="thumbs"></div>
-      <div id="dropZone" class="dropzone">
-        Drop photos here, or
-        <label class="filebtn">browse files
-          <input id="fileInput" type="file" accept="image/*" multiple hidden>
-        </label>
+    <section class="panel">
+      <h2>Layout</h2>
+      <div id="layout-picker" class="picker"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Grade</h2>
+      <div id="grade-picker" class="picker"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Selected panel</h2>
+      <p id="panel-label">Panel 1 — boulevard</p>
+      <label>Zoom
+        <input id="zoom-slider" type="range" min="1" max="2.5" step="0.05" value="1">
+      </label>
+      <button id="reset-panel-btn" type="button">Reset panel</button>
+    </section>
+
+    <section class="panel">
+      <h2>Photos</h2>
+      <div id="library"></div>
+      <button id="upload-btn" type="button">Upload photos</button>
+      <input id="upload-input" type="file" accept="image/*" multiple hidden>
+    </section>
+
+    <section class="panel">
+      <h2>Actions</h2>
+      <div class="actions">
+        <button id="undo-btn" type="button">Undo</button>
+        <button id="redo-btn" type="button">Redo</button>
+        <button id="shuffle-btn" type="button">Shuffle</button>
+        <button id="spread-btn" type="button">Spread one photo</button>
       </div>
-      <div class="row">
-        <button id="sampleBtn" type="button">Use sample library</button>
-        <button id="spreadBtn" type="button">Spread one photo</button>
-      </div>
     </section>
 
-    <section>
-      <h2><em>2</em> Layout</h2>
-      <div id="layoutChips" class="chips"></div>
-    </section>
-
-    <section>
-      <h2><em>3</em> Colour grade</h2>
-      <div id="gradeChips" class="chips"></div>
-    </section>
-
-    <section>
-      <h2><em>4</em> Caption</h2>
-      <label class="field">Title
-        <input id="titleInput" type="text" maxlength="26" value="NEON COAST">
-      </label>
-      <label class="field">Subtitle
-        <input id="subtitleInput" type="text" maxlength="34" value="Sunset Heist">
-      </label>
-      <label class="field">Heat stars <span id="starsVal" class="val">5</span>
-        <input id="starsRange" type="range" min="0" max="5" step="1" value="5">
-      </label>
-    </section>
-
-    <section>
-      <h2><em>5</em> Selected panel</h2>
-      <p id="panelLabel" class="panel-label">Panel 1 of 9 — click a panel in the preview to select it, drag to reposition its photo.</p>
-      <label class="field">Photo in this panel
-        <select id="panelPhotoSelect"></select>
-      </label>
-      <label class="field">Zoom <span id="zoomVal" class="val">1.00×</span>
-        <input id="panelZoom" type="range" min="1" max="2.4" step="0.01" value="1">
-      </label>
-    </section>
-
-    <section>
-      <h2><em>6</em> Export</h2>
-      <label class="field">Post size
-        <select id="sizeSelect"></select>
-      </label>
-      <div class="row">
-        <button id="undoBtn" type="button">Undo</button>
-        <button id="redoBtn" type="button">Redo</button>
-        <button id="shuffleBtn" type="button">Shuffle panels</button>
-      </div>
-      <button id="exportBtn" class="primary" type="button">Export PNG</button>
-      <button id="exportAllBtn" class="primary alt" type="button">Export all sizes</button>
-      <p id="statusLine" class="status">Loading the sample library…</p>
+    <section class="panel">
+      <h2>Export PNG</h2>
+      <div id="size-picker" class="picker"></div>
+      <button id="export-btn" type="button" class="primary">Export 1080 × 1080 PNG</button>
+      <button id="export-all-btn" type="button">Export all sizes</button>
     </section>
   </aside>
+</main>
 
-  <main id="stage">
-    <div class="canvas-wrap">
-      <canvas id="stageCanvas" width="1920" height="1080"></canvas>
-    </div>
-    <p class="hint">Click a panel to select it · drag on the preview to reposition its photo · every panel can hold a different photo</p>
-  </main>
-</div>
-<script type="module" src="./src/main.js"></script>
+<pre id="diag" hidden></pre>
+<script type="module" src="src/shots.js"></script>
 </body>
 </html>
